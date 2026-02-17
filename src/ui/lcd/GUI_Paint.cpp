@@ -31,7 +31,7 @@
   THE SOFTWARE.
 
 ******************************************************************************/
-#include "GUI_Paint.h"
+#include "ui/lcd/GUI_Paint.h"
 #include "DEV_Config.h"
 #include <stdint.h>
 #include <stdlib.h>

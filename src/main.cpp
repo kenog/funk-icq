@@ -1,13 +1,38 @@
 #include <SPI.h>
-#include "LCD_Driver.h"
-#include "GUI_Paint.h"
-#include "image.h"
+#include "ui/lcd/LCD_Driver.h"
+#include "ui/lcd/GUI_Paint.h"
+#include <radio/Dra818.h>
+#include <app/FunkICQ.h>
+#include <protocol/FrameCodec.h>
+
+#define QUEUE_LENGTH 5
 
 int ledblink = 2;
 uint8_t loopcounter = 0;
 
+QueueHandle_t uiToAppQueue;
+QueueHandle_t appToRadioQueue;
+QueueHandle_t radioToAppQueue;
+
+
 void setup()
 {
+
+  // Enable USB Serial device for Debugging
+  Serial.begin(115200);
+
+  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
+  appToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
+  radioToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
+
+  Dra818 radio(appToRadioQueue, radioToAppQueue);
+  FunkIcq funkIcq;
+
+
+  
+
+
+
   pinMode(ledblink,OUTPUT);
   Config_Init();
   LCD_Init();

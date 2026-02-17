@@ -1,6 +1,8 @@
+#pragma once
+
 #include <Arduino.h>
-#include <IOInterface.h>
-#include <string>
+#include <ui/IUserInterface.h>
+#include <ChatMessage.h>
 
 enum SerialPortNumber {
     SERIAL_0 = 0,
@@ -8,12 +10,13 @@ enum SerialPortNumber {
     SERIAL_2 = 2
 };
 
-class UartIO : IOInterface {
+class UartUI : IUserInterface {
     public:
-        UartIO(SerialPortNumber port, unsigned int baudrate);
+        UartUI(SerialPortNumber port, unsigned int baudrate);
 
-        void send(Message);
-        Message receive();
+        void send(ChatMessage msg);
+        ChatMessage receive();
+
         HardwareSerial* getSerialPort();
 
     private:

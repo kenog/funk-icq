@@ -1,9 +1,9 @@
 #include <Arduino.h>
-#include <UartIO.h>
+#include <ui/UartUI.h>
 
 #define ever ;;
 
-UartIO::UartIO(SerialPortNumber port, unsigned int baudrate) {
+UartUI::UartUI(SerialPortNumber port, unsigned int baudrate) {
     switch(port) {
         case SERIAL_0:
             this->serialPort = &Serial;
@@ -18,16 +18,16 @@ UartIO::UartIO(SerialPortNumber port, unsigned int baudrate) {
     xTaskCreate(readUserInput, "UART User Input", 1000, this, 2, &readUserInputTask);
 }
 
-void UartIO::send(Message msg) {
+void UartUI::send(ChatMessage msg) {
 
     //serialPort->println(msg.data);
 }
 
-Message UartIO::receive() {
+ChatMessage UartUI::receive() {
 }
 
 void readUserInput(void * pvParameters) {
-    UartIO *thisPtr = static_cast<UartIO*>(pvParameters);
+    UartUI *thisPtr = static_cast<UartUI*>(pvParameters);
 
     String userInput;
 
@@ -40,6 +40,6 @@ void readUserInput(void * pvParameters) {
     }
 }
 
-HardwareSerial* UartIO::getSerialPort() {
+HardwareSerial* UartUI::getSerialPort() {
     return serialPort;
 }

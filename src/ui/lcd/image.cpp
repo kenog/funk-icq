@@ -1,4 +1,4 @@
-#include "image.h"
+#include "ui/lcd/image.h"
 
 const unsigned char gImage_70X70[9800] = { /* 0X00,0X10,0X46,0X00,0X46,0X00,0X01,0X1B, */
 0XFF,0XFF,0XFF,0XF7,0XFF,0XF7,0XFF,0XF7,0XFF,0XEF,0XFF,0XEF,0XFF,0XF7,0XFF,0XF7,
