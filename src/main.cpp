@@ -3,7 +3,7 @@
 #include "ui/lcd/GUI_Paint.h"
 #include <radio/Dra818.h>
 #include <app/FunkICQ.h>
-#include <protocol/FrameCodec.h>
+#include <protocol/Layer2.h>
 
 #define QUEUE_LENGTH 5
 

@@ -1,5 +1,5 @@
 #include <radio/Dra818.h>
-#include <protocol/FrameCodec.h>
+#include <protocol/Layer2.h>
 
 Dra818::Dra818(QueueHandle_t fromUpperLayer, QueueHandle_t toUpperLayer) {
     Serial.println("Initialising DRA818 Radio...");
