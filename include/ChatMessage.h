@@ -4,7 +4,7 @@
 
 class ChatMessage {
     public:
-        std::string sender;
-        uint8_t *data;
+        String sender;
+        String message;
         unsigned int receptionTime;
 };

@@ -7,7 +7,13 @@ void funkIcqTask(void* pvParams);
 
 class FunkIcq {
     public:
-        FunkIcq();
-        void handleIncomingMessage(const ChatMessage& msg);
-        void handleUserInput(const String& input);
+        FunkIcq(QueueHandle_t uiToAppQueue);
+        void handleIncomingMessage(ChatMessage msg);
+        static void handleUserInput(String input);
+        QueueHandle_t getUiToAppQueue() {
+            return uiToAppQueue;
+        }
+    private:
+        TaskHandle_t appTask;
+        QueueHandle_t uiToAppQueue;
 };

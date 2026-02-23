@@ -12,10 +12,14 @@ enum SerialPortNumber {
 
 class UartUI : IUserInterface {
     public:
-        UartUI(SerialPortNumber port, unsigned int baudrate);
+        UartUI(SerialPortNumber port, unsigned int baudrate, QueueHandle_t uiToAppQueue);
 
         void send(ChatMessage msg);
         ChatMessage receive();
+        void printMessage(ChatMessage msg) override;
+        QueueHandle_t getUiToAppQueueHandle() {
+            return uiToAppQueue;
+        };
 
         HardwareSerial* getSerialPort();
 
@@ -23,4 +27,5 @@ class UartUI : IUserInterface {
         HardwareSerial* serialPort;
         unsigned int baudrate;
         TaskHandle_t readUserInputTask;
+        QueueHandle_t uiToAppQueue;
 };
