@@ -3,23 +3,57 @@
 FunkIcq::FunkIcq(QueueHandle_t uiToAppQueue) {
   this->uiToAppQueue = uiToAppQueue;
 
-  xTaskCreate(funkIcqTask, "FunkICQ", 4096, this, 1, &appTask);
+  // Wait 1s until everything is available
+  vTaskDelay(1000 * portTICK_PERIOD_MS);
+  xTaskCreatePinnedToCore(funkIcqTask, "FunkICQ", 4096, this, 1, &appTask, 0);
+  Serial.println("APP: Task created");
+  Serial.flush();
 }
 
 void funkIcqTask(void* pvParams) {
+    Serial.println("APP: Task started");
     FunkIcq* thisPtr = static_cast<FunkIcq*>(pvParams);
-    Serial.printf("FunkIcq.thisPtr->getQ() = %p\n", thisPtr->getUiToAppQueue());
+    if(!thisPtr) {
+      Serial.println("APP: thisPtr is NULL");
+    }
+    else {
+        Serial.printf("FunkIcq.thisPtr->getQ() = %p\n", thisPtr->getUiToAppQueue());
+    }
+    Serial.flush();
+
 
     ChatMessage transmittableMsg;
-    String receivedMessage;
-    QueueHandle_t testQ = xQueueCreate(5, sizeof(String));
+    String* receivedMessagePtr = NULL;
+    QueueHandle_t uiToAppQueue = thisPtr->getUiToAppQueue();
 
-    Serial.print(receivedMessage);
     while(true) {
-        if(xQueueReceive(testQ, (void*) &receivedMessage, 100 * portTICK_PERIOD_MS)) {
+        if(!thisPtr) {
+          Serial.println("APP: thisPtr is NULL");
+          continue;
+        }
+        else {
+          Serial.println("APP: thisPtr OK");
+        }
+        if(!uiToAppQueue) {
+          Serial.println("APP: queue is NULL");
+          continue;
+        }
+        else {
+          Serial.println("APP: queue OK");
+        }
+
+        /*
+        if(xQueueReceive(uiToAppQueue, (void*) &receivedMessagePtr, 5000 * portTICK_PERIOD_MS)) {
           // We have new user input
           Serial.print("new input:");
-          Serial.println(receivedMessage);
+          Serial.println(*receivedMessagePtr);
+          Serial.flush();
+          free(receivedMessagePtr);
         }
+        else {
+          Serial.println("APP: no input");
+        }
+*/
+        vTaskDelay(3000 * portTICK_PERIOD_MS);
     }
 }

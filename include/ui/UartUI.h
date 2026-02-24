@@ -4,6 +4,8 @@
 #include <ui/IUserInterface.h>
 #include <ChatMessage.h>
 
+#define MAX_MSG_LEN 255
+
 enum SerialPortNumber {
     SERIAL_0 = 0,
     SERIAL_1 = 1,

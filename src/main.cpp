@@ -6,9 +6,8 @@
 #include <radio/Dra818.h>
 
 #define QUEUE_LENGTH 5
+#define MAX_MSG_LEN 255
 
-int ledblink = 2;
-uint8_t loopcounter = 0;
 
 // Transmission Queues
 QueueHandle_t uiToAppQueue;
@@ -26,7 +25,7 @@ void setup()
   // Enable USB Serial device for Debugging
   Serial.begin(115200);
 
-  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(String));
+  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(String*));
   Serial.printf("main.Q = %p\n", uiToAppQueue);
   //appToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
   //radioToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
@@ -34,9 +33,12 @@ void setup()
   // Initialise Application Layer
   FunkIcq funkIcq(uiToAppQueue);
 
-  // Initialise User Interface
-  //UartUI uartUi(SERIAL_0, 115200, uiToAppQueue);
+  delay(2000);
 
+  // Initialise User Interface
+  UartUI uartUi(SERIAL_2, 115200, uiToAppQueue);
+
+  delay(2000);
   // Initialise PHY
   //Dra818 radio(appToRadioQueue, radioToAppQueue);
 
@@ -44,6 +46,6 @@ void setup()
 }
 
 void loop(){
-  Serial.println("Loop...");
-  delay(1000);
+  Serial.printf("MAIN: uiToAppQueue = %p\n", uiToAppQueue);
+  vTaskDelay(1000);
 }
