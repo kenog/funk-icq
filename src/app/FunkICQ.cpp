@@ -1,7 +1,10 @@
 #include <app/FunkICQ.h>
 
-FunkIcq::FunkIcq(QueueHandle_t uiToAppQueue) {
+FunkIcq::FunkIcq(QueueHandle_t uiToAppQueue, QueueHandle_t appToUiQueue, QueueHandle_t appToLayer2Queue, QueueHandle_t layer2ToAppQueue) {
   this->uiToAppQueue = uiToAppQueue;
+  this->appToUiQueue = appToUiQueue;
+  this->layer2ToAppQueue = layer2ToAppQueue;
+  this->appToLayer2Queue = appToLayer2Queue;
 
   // Wait 1s until everything is available
   vTaskDelay(1000 * portTICK_PERIOD_MS);
@@ -17,14 +20,18 @@ void funkIcqTask(void* pvParams) {
       Serial.println("APP: thisPtr is NULL");
     }
     else {
-        Serial.printf("FunkIcq.thisPtr->getQ() = %p\n", thisPtr->getUiToAppQueue());
+        Serial.printf("FunkIcq.thisPtr->getQ() = %p\n", thisPtr->uiToAppQueue);
     }
     Serial.flush();
 
 
     ChatMessage transmittableMsg;
-    char receivedMessagePtr[MAX_INPUT];
-    QueueHandle_t uiToAppQueue = thisPtr->getUiToAppQueue();
+    ChatMessage receivedMsg;
+
+    QueueHandle_t uiToAppQueue = thisPtr->uiToAppQueue;
+    QueueHandle_t appToUiQueue = thisPtr->appToUiQueue;
+    QueueHandle_t layer2ToAppQueue = thisPtr->layer2ToAppQueue;
+    QueueHandle_t appToLayer2Queue = thisPtr->appToLayer2Queue;
 
     while(true) {
         if(!thisPtr) {
@@ -46,13 +53,16 @@ void funkIcqTask(void* pvParams) {
         }
         */
 
-        if(xQueueReceive(uiToAppQueue, (void*) &receivedMessagePtr, 5000 * portTICK_PERIOD_MS)) {
+        if(xQueueReceive(uiToAppQueue, (void*) &transmittableMsg, 50 * portTICK_PERIOD_MS)) {
           // We have new user input
-          Serial.printf("APP: New user input: '%s'\n", receivedMessagePtr);
+          Serial.printf("APP: New user input: '%s'\n", transmittableMsg.message);
           Serial.flush();
+          xQueueSend(appToLayer2Queue, (void*) &transmittableMsg, 1000 * portTICK_PERIOD_MS);
         }
-        else {
-          //Serial.println("APP: no input");
+        if(xQueueReceive(layer2ToAppQueue, (void*) &receivedMsg, 50 * portTICK_PERIOD_MS)) {
+          // We have new incoming message
+          Serial.printf("APP: %s: %s'\n", receivedMsg.sender, receivedMsg.message);
+          Serial.flush();
         }
     }
 }

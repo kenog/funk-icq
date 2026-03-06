@@ -4,9 +4,8 @@
 #include <app/FunkICQ.h>
 #include <protocol/Layer2.h>
 #include <radio/Dra818.h>
+#include <Settings.h>
 
-#define QUEUE_LENGTH 5
-#define MAX_MSG_LEN 255
 
 
 // Transmission Queues
@@ -19,24 +18,34 @@ QueueHandle_t radioToLayer2Queue;
 QueueHandle_t layer2ToAppQueue;
 QueueHandle_t appToUiQueue;
 
+UartUI* uartUi;
+FunkIcq* funkIcq;
+Layer2* layer2;
+
 void setup()
 {
 
   // Enable USB Serial device for Debugging
   Serial.begin(115200);
 
-  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(char[MAX_INPUT]));
+  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(char[MAX_MSG_LEN]));
   Serial.printf("main.Q = %p\n", uiToAppQueue);
-  //appToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
-  //radioToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
+
+  appToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
+  layer2ToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
+
+  layer2toToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
+  radioToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
 
   // Initialise Application Layer
-  FunkIcq funkIcq(uiToAppQueue);
+  funkIcq = new FunkIcq(uiToAppQueue, appToUiQueue, appToLayer2Queue, layer2ToAppQueue);
 
   delay(2000);
 
   // Initialise User Interface
-  UartUI uartUi(SERIAL_2, 115200, uiToAppQueue);
+  uartUi = new UartUI(SERIAL_2, 115200, uiToAppQueue);
+
+  layer2 = new Layer2(appToLayer2Queue, layer2ToAppQueue, layer2toToRadioQueue, radioToLayer2Queue);
 
   delay(2000);
   // Initialise PHY

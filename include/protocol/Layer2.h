@@ -7,6 +7,27 @@
 
 class Layer2 {
     public:
-        //std::vector<uint8_t> encode(const Frame& frame);
-        bool decode(uint8_t bla);
+        Layer2(QueueHandle_t upperLayerIn, QueueHandle_t upperLayerOut, QueueHandle_t lowerLayerIn, QueueHandle_t lowerLayerOut);
+
+        int sendFrame(Frame f);
+
+        QueueHandle_t getAppToLayer2QueueHandle() { return appToLayer2Queue; };
+        QueueHandle_t getLayer2ToAppQueueHandle() { return layer2ToAppQueue; };
+        QueueHandle_t getRadioToLayer2QueueHandle() { return radioToLayer2Queue; };
+        QueueHandle_t getLayer2ToRadioQueueHandle() { return layer2ToRadioQueue; };
+
+        enum ProtocolState {
+            IDLE,
+            RX,
+            TX
+        };
+
+    private:
+        TaskHandle_t layer2TaskHandle;
+
+        QueueHandle_t appToLayer2Queue;
+        QueueHandle_t layer2ToAppQueue;
+
+        QueueHandle_t layer2ToRadioQueue;
+        QueueHandle_t radioToLayer2Queue;
 };

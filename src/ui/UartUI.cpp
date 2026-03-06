@@ -9,8 +9,8 @@ void readUserInput(void * pvParameters) {
     QueueHandle_t uiToAppQueueHandle = thisPtr->getUiToAppQueueHandle();
     Serial.printf("UartUI: uiToAppQueueHandle = %p\n", uiToAppQueueHandle);
 
-    char userInput[MAX_INPUT];
-    char* userInputWritePtr = &userInput[0];
+    ChatMessage userInput;
+    char* userInputWritePtr = &userInput.message[0];
 
     HardwareSerial* serialPtr = thisPtr->getSerialPort();
     Serial.printf("UartUI: serialPtr = %p\n", serialPtr);
@@ -18,20 +18,20 @@ void readUserInput(void * pvParameters) {
 
     for(ever) {
         if(startNewMessage) {
-            serialPtr->print("Enter Message: ");
+            serialPtr->print("\n\nEnter Message: ");
             startNewMessage = false;
         }
 
-        while (serialPtr->available() && userInputWritePtr < userInput + sizeof(char) * (MAX_INPUT - 1)) {
+        while (serialPtr->available() && userInputWritePtr < userInput.message + sizeof(char) * (MAX_INPUT - 1)) {
             char incomingChar = serialPtr->read();  // Read each character from the buffer
 
             if (incomingChar == '\n' || incomingChar == '\r') {
                 *userInputWritePtr++ = '\0';                                // User Message is over - add 0-termination
                 //Serial.printf("UartUI: New user input: '%s'\n", userInput);
 
-                xQueueSend(uiToAppQueueHandle, (void*) userInput, 1000);    // xQueueReceive copys userInput into its own buffer so we can directly reuse userInput
+                xQueueSend(uiToAppQueueHandle, (void*) &userInput, 1000);    // xQueueReceive copys userInput into its own buffer so we can directly reuse userInput
 
-                userInputWritePtr = &userInput[0];                          // Reset write pointer to beginning of buffer
+                userInputWritePtr = &userInput.message[0];                          // Reset write pointer to beginning of buffer
                 startNewMessage = true;
             }
             else {
@@ -75,7 +75,7 @@ UartUI::UartUI(SerialPortNumber port, unsigned int _baudrate, QueueHandle_t _uiT
 }
 
 void UartUI::printMessage(ChatMessage msg) {
-    serialPort->print(msg.sender + ": " + msg.message);
+    //serialPort->print(msg.sender + ": " + msg.message);
 }
 
 HardwareSerial* UartUI::getSerialPort() {
