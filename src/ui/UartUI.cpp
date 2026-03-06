@@ -4,29 +4,19 @@
 #define ever ;;
 
 void readUserInput(void * pvParameters) {
-    UartUI *thisPtr = static_cast<UartUI*>(pvParameters);
-    Serial.printf("UartUi: uiToAppQueue = %p\n", thisPtr->getUiToAppQueueHandle());
+    UartUI *thisPtr = static_cast<UartUI*>(pvParameters);       // TODO: This approach does not work and the object becomes invalid after a while, change to basic C
 
-    QueueHandle_t appQ = thisPtr->getUiToAppQueueHandle();
-    Serial.printf("UartUi: appQ = %p\n", appQ);
-
+    QueueHandle_t uiToAppQueueHandle = thisPtr->getUiToAppQueueHandle();
+    Serial.printf("UartUI: uiToAppQueueHandle = %p\n", uiToAppQueueHandle);
 
     char userInput[MAX_INPUT];
-
     char* userInputWritePtr = &userInput[0];
-    unsigned int ret;
 
     HardwareSerial* serialPtr = thisPtr->getSerialPort();
-    Serial.printf("UartUi: serialPtr = %p\n", serialPtr);
+    Serial.printf("UartUI: serialPtr = %p\n", serialPtr);
     bool startNewMessage = true;
 
     for(ever) {
-        if(!serialPtr) {
-            Serial.println("serialPtr became NULL. Waiting 1s...");
-            vTaskDelay(1000 * portTICK_PERIOD_MS);
-            serialPtr = thisPtr->getSerialPort();
-            continue;
-        }
         if(startNewMessage) {
             serialPtr->print("Enter Message: ");
             startNewMessage = false;
@@ -35,15 +25,13 @@ void readUserInput(void * pvParameters) {
         while (serialPtr->available() && userInputWritePtr < userInput + sizeof(char) * (MAX_INPUT - 1)) {
             char incomingChar = serialPtr->read();  // Read each character from the buffer
 
-            if (incomingChar == '\n' || incomingChar == '\r') {  // Check if the user pressed Enter (new line character)
-                // Forward User Input to Application
-                *userInputWritePtr++ = '\0';    // User Message is over - add 0-termination
-                Serial.printf("UI: New user input: '%s'\n", userInput);
-                Serial.flush();
-                xQueueSend(appQ, (void*) userInput, 1000);          // xQueueReceive copys userInput into its own buffer so we can directly reuse userInput
-                //xQueueSend(thisPtr->getUiToAppQueueHandle(), (void*) userInput, 1000);
+            if (incomingChar == '\n' || incomingChar == '\r') {
+                *userInputWritePtr++ = '\0';                                // User Message is over - add 0-termination
+                //Serial.printf("UartUI: New user input: '%s'\n", userInput);
 
-                userInputWritePtr = &userInput[0];    // Reset write pointer to beginning of buffer
+                xQueueSend(uiToAppQueueHandle, (void*) userInput, 1000);    // xQueueReceive copys userInput into its own buffer so we can directly reuse userInput
+
+                userInputWritePtr = &userInput[0];                          // Reset write pointer to beginning of buffer
                 startNewMessage = true;
             }
             else {
@@ -52,7 +40,7 @@ void readUserInput(void * pvParameters) {
                 serialPtr->print(incomingChar);         // Echo back to termial for user convenience
             }
         }
-        vTaskDelay(50 * portTICK_PERIOD_MS);
+        vTaskDelay(100 * portTICK_PERIOD_MS);
     }
 }
 
@@ -76,7 +64,7 @@ UartUI::UartUI(SerialPortNumber port, unsigned int _baudrate, QueueHandle_t _uiT
     baudrate = _baudrate;
     uiToAppQueue = _uiToAppQueue;
 
-    Serial.printf("UartUi.this = %p\n", this);
+    //Serial.printf("UartUi.this = %p\n", this);
 
     // Wait 1s until everything is available
     vTaskDelay(1000 * portTICK_PERIOD_MS);
