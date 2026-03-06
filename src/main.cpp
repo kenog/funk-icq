@@ -25,7 +25,7 @@ void setup()
   // Enable USB Serial device for Debugging
   Serial.begin(115200);
 
-  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(String*));
+  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(char[MAX_INPUT]));
   Serial.printf("main.Q = %p\n", uiToAppQueue);
   //appToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
   //radioToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
@@ -46,6 +46,4 @@ void setup()
 }
 
 void loop(){
-  Serial.printf("MAIN: uiToAppQueue = %p\n", uiToAppQueue);
-  vTaskDelay(1000);
 }

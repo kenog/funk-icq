@@ -11,15 +11,14 @@ void readUserInput(void * pvParameters) {
     Serial.printf("UartUi: appQ = %p\n", appQ);
 
 
-    String userInput = "";
-    if(userInput.reserve(MAX_MSG_LEN) == pdFALSE) {
-        Serial.println("UI: no mem");
-    }
+    char userInput[MAX_INPUT];
+
+    char* userInputWritePtr = &userInput[0];
     unsigned int ret;
 
     HardwareSerial* serialPtr = thisPtr->getSerialPort();
     Serial.printf("UartUi: serialPtr = %p\n", serialPtr);
-    bool printed = false;
+    bool startNewMessage = true;
 
     for(ever) {
         if(!serialPtr) {
@@ -28,28 +27,29 @@ void readUserInput(void * pvParameters) {
             serialPtr = thisPtr->getSerialPort();
             continue;
         }
-        if(!printed) {
+        if(startNewMessage) {
             serialPtr->print("Enter Message: ");
-            printed = true;
+            startNewMessage = false;
         }
 
-        while (serialPtr->available()) {
+        while (serialPtr->available() && userInputWritePtr < userInput + sizeof(char) * (MAX_INPUT - 1)) {
             char incomingChar = serialPtr->read();  // Read each character from the buffer
-            userInput += incomingChar;
-            serialPtr->print(incomingChar);
 
             if (incomingChar == '\n' || incomingChar == '\r') {  // Check if the user pressed Enter (new line character)
                 // Forward User Input to Application
-                serialPtr->print(incomingChar);
-                String* outputMessagePtr = new String(userInput);
-                Serial.println("UI: user input = '" + userInput + "'");
+                *userInputWritePtr++ = '\0';    // User Message is over - add 0-termination
+                Serial.printf("UI: New user input: '%s'\n", userInput);
                 Serial.flush();
-                xQueueSend(appQ, (void*) outputMessagePtr, 1000);
-                //xQueueSend(thisPtr->getUiToAppQueueHandle(), (void*) outputMessagePtr, 1000);
+                xQueueSend(appQ, (void*) userInput, 1000);          // xQueueReceive copys userInput into its own buffer so we can directly reuse userInput
+                //xQueueSend(thisPtr->getUiToAppQueueHandle(), (void*) userInput, 1000);
 
-                // Clear the message buffer for the next input
-                userInput = "";
-                printed = false;
+                userInputWritePtr = &userInput[0];    // Reset write pointer to beginning of buffer
+                startNewMessage = true;
+            }
+            else {
+                // Normal character
+                *userInputWritePtr++ = incomingChar;    // Store in input buffer
+                serialPtr->print(incomingChar);         // Echo back to termial for user convenience
             }
         }
         vTaskDelay(50 * portTICK_PERIOD_MS);
