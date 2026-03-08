@@ -6,8 +6,6 @@
 #include <radio/Dra818.h>
 #include <Settings.h>
 
-
-
 // Transmission Queues
 QueueHandle_t uiToAppQueue;
 QueueHandle_t appToLayer2Queue;

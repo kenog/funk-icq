@@ -29,8 +29,9 @@ void readUserInput(void * pvParameters) {
             char incomingChar = serialPtr->read();  // Read each character from the buffer
 
             if (incomingChar == '\n' || incomingChar == '\r') {
+                serialPtr->println();    // Go to next line, so potentially received messages are not printed behind the user input
                 *userInputWritePtr++ = '\0';                                // User Message is over - add 0-termination
-                D_printf("UartUI: New user input: '%s'\n", userInput);
+                D_printf("UartUI: New user input: '%s'\n", userInput.message);
 
                 xQueueSend(uiToAppQueueHandle, (void*) &userInput, 1000);    // xQueueReceive copys userInput into its own buffer so we can directly reuse userInput
 
@@ -67,6 +68,7 @@ UartUI::UartUI(SerialPortNumber port, unsigned int _baudrate, QueueHandle_t _uiT
             break;
         default:
             D_printf("ERROR: Unknown Serial Port: %d\n", port);
+            D_flush();
     }
 
     D_printf("UI: Set Serial Port: %d, addr = %p\n", port, getSerialPort());

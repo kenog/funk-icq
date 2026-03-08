@@ -41,15 +41,12 @@ void funkIcqTask(void* pvParams) {
 
         if(xQueueReceive(uiToAppQueue, (void*) &transmittableMsg, 50 * portTICK_PERIOD_MS)) {
             // We have new user input
-            //Serial.printf("APP: New user input: '%s'\n", transmittableMsg.message);
-            //Serial.flush();
+            D_printf("APP: New user input: '%s'\n", transmittableMsg.message);
             xQueueSend(appToLayer2Queue, (void*) &transmittableMsg, 1000 * portTICK_PERIOD_MS);
         }
-
         if(xQueueReceive(layer2ToAppQueue, (void*) &receivedMsg, 50 * portTICK_PERIOD_MS)) {
             // We have new incoming message
             D_printf("APP: %s: %s'\n", receivedMsg.sender, receivedMsg.message);
-            D_flush();
             xQueueSend(appToUiQueue, (void*) &receivedMsg, 1000 * portTICK_PERIOD_MS);
         }
     }
