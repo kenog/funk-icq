@@ -20,7 +20,7 @@ void readUserInput(void * pvParameters) {
 
     for(ever) {
         if(startNewMessage) {
-            serialPtr->print("\n\nEnter Message: ");
+            //serialPtr->print("\n\nEnter Message: ");      // Commented because it messes up UI when messages are received
             startNewMessage = false;
         }
 
