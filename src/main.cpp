@@ -22,37 +22,37 @@ UartUI* uartUi;
 FunkIcq* funkIcq;
 Layer2* layer2;
 
-void setup()
-{
+void setup() {
 
-  // Enable USB Serial device for Debugging
-  Serial.begin(115200);
+    // Enable USB Serial device for Debugging
+    Serial.begin(115200);
 
-  uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(char[MAX_MSG_LEN]));
-  Serial.printf("main.Q = %p\n", uiToAppQueue);
+    uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(char[MAX_MSG_LEN]));
+    Serial.printf("main.Q = %p\n", uiToAppQueue);
 
-  appToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
-  layer2ToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
+    appToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
+    layer2ToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
 
-  layer2toToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
-  radioToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
+    layer2toToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
+    radioToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
 
-  // Initialise Application Layer
-  funkIcq = new FunkIcq(uiToAppQueue, appToUiQueue, appToLayer2Queue, layer2ToAppQueue);
+    // Initialise Application Layer
+    funkIcq = new FunkIcq(uiToAppQueue, appToUiQueue, appToLayer2Queue, layer2ToAppQueue);
 
-  delay(2000);
+    delay(2000);
 
-  // Initialise User Interface
-  uartUi = new UartUI(SERIAL_2, 115200, uiToAppQueue);
+    // Initialise User Interface
+    uartUi = new UartUI(SERIAL_2, 115200, uiToAppQueue);
 
-  layer2 = new Layer2(appToLayer2Queue, layer2ToAppQueue, layer2toToRadioQueue, radioToLayer2Queue);
+    layer2 = new Layer2(appToLayer2Queue, layer2ToAppQueue, layer2toToRadioQueue, radioToLayer2Queue);
 
-  delay(2000);
-  // Initialise PHY
-  //Dra818 radio(appToRadioQueue, radioToAppQueue);
+    delay(2000);
+    // Initialise PHY
+    //Dra818 radio(appToRadioQueue, radioToAppQueue);
 
-  Serial.println("Initialisation Done...");
+    Serial.println("Initialisation Done...");
 }
 
 void loop(){
+    // Nothing to do here, we do everything in the Tasks we started during setup()
 }
