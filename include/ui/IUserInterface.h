@@ -6,6 +6,6 @@
 
 class IUserInterface {
     public:
-    virtual void printMessage(ChatMessage msg) = 0;
+    virtual void printMessage(const ChatMessage& msg) = 0;
     //virtual void onUserInput(std::function<void(String)> callback) = 0;
 };

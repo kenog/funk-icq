@@ -27,8 +27,8 @@ void setup() {
     // Enable USB Serial device for Debugging
     Serial.begin(115200);
 
-    uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(char[MAX_MSG_LEN]));
-    Serial.printf("main.Q = %p\n", uiToAppQueue);
+    uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
+    appToUiQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
 
     appToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
     layer2ToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
@@ -42,7 +42,7 @@ void setup() {
     delay(2000);
 
     // Initialise User Interface
-    uartUi = new UartUI(SERIAL_2, 115200, uiToAppQueue);
+    uartUi = new UartUI(SERIAL_2, 115200, uiToAppQueue, appToUiQueue);
 
     layer2 = new Layer2(appToLayer2Queue, layer2ToAppQueue, layer2toToRadioQueue, radioToLayer2Queue);
 
