@@ -9,7 +9,9 @@ class Layer2 {
     public:
         Layer2(QueueHandle_t upperLayerIn, QueueHandle_t upperLayerOut, QueueHandle_t lowerLayerIn, QueueHandle_t lowerLayerOut);
 
-        int sendFrame(Frame f);
+        int sendFrame(icqFrame_t f);
+        //int serialise(const icqFrame_t& f, uint8_t* framebuf);
+        void printSerialisedFrame(uint8_t *buf, uint8_t len);
 
         QueueHandle_t getAppToLayer2QueueHandle() { return appToLayer2Queue; };
         QueueHandle_t getLayer2ToAppQueueHandle() { return layer2ToAppQueue; };

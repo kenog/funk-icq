@@ -13,13 +13,13 @@ Dra818::Dra818(QueueHandle_t fromUpperLayer, QueueHandle_t toUpperLayer) {
 }
 
 void dra818TxTask(void* pvParams) {
-    Frame frame;
+    icqFrame_t frame;
     Dra818* thisPtr = static_cast<Dra818*>(pvParams);
 
     uint8_t buf[128];
     while(true) {
         if(xQueueReceive(thisPtr->getFromUpperLayerQueueHandle(), &frame, 1000 * portTICK_PERIOD_MS)) {
-            thisPtr->sendBytes(frame.payload, frame.length);
+    //        thisPtr->sendBytes(frame.payload, frame.length);
         }
     }
 }

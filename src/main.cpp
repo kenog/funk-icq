@@ -31,8 +31,8 @@ void setup() {
     appToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
     layer2ToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
 
-    layer2toToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
-    radioToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(Frame));
+    layer2toToRadioQueue = xQueueCreate(QUEUE_LENGTH, sizeof(icqFrame_t));
+    radioToLayer2Queue = xQueueCreate(QUEUE_LENGTH, sizeof(icqFrame_t));
 
     // Initialise Application Layer
     funkIcq = new FunkIcq(uiToAppQueue, appToUiQueue, appToLayer2Queue, layer2ToAppQueue);
