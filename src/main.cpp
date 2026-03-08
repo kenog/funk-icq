@@ -25,7 +25,7 @@ Layer2* layer2;
 void setup() {
 
     // Enable USB Serial device for Debugging
-    Serial.begin(115200);
+    D_SerialBegin(115200);
 
     uiToAppQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
     appToUiQueue = xQueueCreate(QUEUE_LENGTH, sizeof(ChatMessage));
@@ -50,7 +50,7 @@ void setup() {
     // Initialise PHY
     //Dra818 radio(appToRadioQueue, radioToAppQueue);
 
-    Serial.println("Initialisation Done...");
+    D_println("Initialisation Done...");
 }
 
 void loop(){

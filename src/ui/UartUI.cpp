@@ -7,10 +7,10 @@ void readUserInput(void * pvParameters) {
     UartUI *thisPtr = static_cast<UartUI*>(pvParameters);       // TODO: This approach does not work and the object becomes invalid after a while, change to basic C
 
     QueueHandle_t uiToAppQueueHandle = thisPtr->getUiToAppQueueHandle();
-    Serial.printf("UartUI: uiToAppQueueHandle = %p\n", uiToAppQueueHandle);
+    D_printf("UartUI: uiToAppQueueHandle = %p\n", uiToAppQueueHandle);
 
     HardwareSerial* serialPtr = thisPtr->getSerialPort();
-    Serial.printf("UartUI: serialPtr = %p\n", serialPtr);
+    D_printf("UartUI: serialPtr = %p\n", serialPtr);
 
     ChatMessage userInput;
     char* userInputWritePtr = &userInput.message[0];
@@ -30,7 +30,7 @@ void readUserInput(void * pvParameters) {
 
             if (incomingChar == '\n' || incomingChar == '\r') {
                 *userInputWritePtr++ = '\0';                                // User Message is over - add 0-termination
-                //Serial.printf("UartUI: New user input: '%s'\n", userInput);
+                D_printf("UartUI: New user input: '%s'\n", userInput);
 
                 xQueueSend(uiToAppQueueHandle, (void*) &userInput, 1000);    // xQueueReceive copys userInput into its own buffer so we can directly reuse userInput
 
@@ -66,10 +66,10 @@ UartUI::UartUI(SerialPortNumber port, unsigned int _baudrate, QueueHandle_t _uiT
             serialPort = &Serial2;
             break;
         default:
-            Serial.printf("ERROR: Unknown Serial Port: %d\n", port);
+            D_printf("ERROR: Unknown Serial Port: %d\n", port);
     }
 
-    Serial.printf("UI: Set Serial Port: %d, addr = %p\n", port, getSerialPort());
+    D_printf("UI: Set Serial Port: %d, addr = %p\n", port, getSerialPort());
 
     baudrate = _baudrate;
     serialPort->begin(baudrate);

@@ -9,20 +9,20 @@ FunkIcq::FunkIcq(QueueHandle_t uiToAppQueue, QueueHandle_t appToUiQueue, QueueHa
     // Wait 1s until everything is available
     vTaskDelay(1000 * portTICK_PERIOD_MS);
     xTaskCreatePinnedToCore(funkIcqTask, "FunkICQ", 4096, this, 1, &appTask, 0);
-    Serial.println("APP: Task created");
-    Serial.flush();
+    D_println("APP: Task created");
+    D_flush();
 }
 
 void funkIcqTask(void* pvParams) {
-    Serial.println("APP: Task started");
+    D_println("APP: Task started");
     FunkIcq* thisPtr = static_cast<FunkIcq*>(pvParams);
     if(!thisPtr) {
-        Serial.println("APP: thisPtr is NULL");
+        D_println("APP: thisPtr is NULL");
     }
     else {
-        Serial.printf("FunkIcq.thisPtr->getQ() = %p\n", thisPtr->uiToAppQueue);
+        D_printf("FunkIcq.thisPtr->getQ() = %p\n", thisPtr->uiToAppQueue);
     }
-    Serial.flush();
+    D_flush();
 
 
     ChatMessage transmittableMsg;
@@ -35,21 +35,21 @@ void funkIcqTask(void* pvParams) {
 
     while(true) {
         if(!thisPtr) {
-            Serial.println("APP: thisPtr is NULL");
+            D_println("APP: thisPtr is NULL");
             continue;
         }
 
         if(xQueueReceive(uiToAppQueue, (void*) &transmittableMsg, 50 * portTICK_PERIOD_MS)) {
             // We have new user input
-            Serial.printf("APP: New user input: '%s'\n", transmittableMsg.message);
-            Serial.flush();
+            //Serial.printf("APP: New user input: '%s'\n", transmittableMsg.message);
+            //Serial.flush();
             xQueueSend(appToLayer2Queue, (void*) &transmittableMsg, 1000 * portTICK_PERIOD_MS);
         }
 
         if(xQueueReceive(layer2ToAppQueue, (void*) &receivedMsg, 50 * portTICK_PERIOD_MS)) {
             // We have new incoming message
-            Serial.printf("APP: %s: %s'\n", receivedMsg.sender, receivedMsg.message);
-            Serial.flush();
+            D_printf("APP: %s: %s'\n", receivedMsg.sender, receivedMsg.message);
+            D_flush();
             xQueueSend(appToUiQueue, (void*) &receivedMsg, 1000 * portTICK_PERIOD_MS);
         }
     }
